@@ -2,11 +2,12 @@ import { Button, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpaci
 import { useEffect, useLayoutEffect, useState, version } from "react";
 import { loadTensorflowModel } from "react-native-fast-tflite";
 import { TypedArray } from "@tensorflow/tfjs";
+import LinearGradient from "react-native-linear-gradient";
 
 export function AnalisiScreen(props: { navigation: any, route: any }) {
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
-    const [backend, setBackend] = useState<string | null>(null);
+    const [result, setResult] = useState("");
     function generateRandomTypedArrays(length: number, arrayLength: number, min: number, max: number): Float32Array[] {
         let arrays: Float32Array[] = [];
         for (let i = 0; i < length; i++) {
@@ -31,7 +32,8 @@ export function AnalisiScreen(props: { navigation: any, route: any }) {
                 console.log(model.inputs);
                 let randomTypedArrays: Float32Array[] = generateRandomTypedArrays(numberOfArrays, lengthOfEachArray, min, max);
                 const output = await model.run(randomTypedArrays)
-                console.log("result",output)
+                console.log(output)
+                setResult(output.toString())
             } catch (error) {
                 console.error('Error loading the model:', error);
             }
@@ -39,34 +41,35 @@ export function AnalisiScreen(props: { navigation: any, route: any }) {
 
         loadModel();
     }, []);
-    const fetchAndAnalyzeImage = async () => {
-        try {
-
-        } catch (error) {
-            console.error('Error during image analysis:', error);
-        }
-    };
 
     console.log( props.route.params.url)
-    return (<View style={{
-        flex: 1,
-        height: windowHeight, width: windowWidth, flexDirection: "column", backgroundColor: "#e6e6e6"
-    }}>
-        <View style={{ flex: 0.5, backgroundColor: "#e6e6e6", justifyContent: 'center', alignItems: 'center' }}>
-            <Image
+
+    return (
+        <LinearGradient
+          colors={['#add8e6', '#1e90ff']}  
+          style={{ flex: 1 }}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <View style={{
+            flex: 1,
+            height: windowHeight, width: windowWidth, flexDirection: "column"
+          }}>
+            <View style={{ flex: 0.5, justifyContent: 'center', alignItems: 'center' }}>
+              <Image
                 source={{ uri: props.route?.params?.url }}
                 style={{ width: windowWidth * 60 / 100, height: 400 }}
-            />
-        </View>
-        <View style={{ flex: 0.5, backgroundColor: "#e6e6e6", alignItems: "center" }}>
-            <ScrollView style={{ marginBottom: '5%', width: windowWidth * 90 / 100, flexDirection: "column", backgroundColor: "#f4f4f4" }}>
-            </ScrollView>
-        </View>
-        <TouchableOpacity style={styles.button} onPress={fetchAndAnalyzeImage}>
-            <Text style={styles.buttonText}>Scatta Foto</Text>
-        </TouchableOpacity>
-    </View>)
-}
+              />
+            </View>
+            <View style={{ flex: 0.5, alignItems: "center" }}>
+              <ScrollView style={styles.scrollView}>
+                <Text style={styles.buttonText}> {result}</Text>
+              </ScrollView>
+            </View>
+          </View>
+        </LinearGradient>
+      );
+    }
 const styles = StyleSheet.create({
     button: {
         width: '100%',
@@ -78,6 +81,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    scrollView: {
+        marginBottom: '5%',
+        width: '90%',
+        flexDirection: "column",
+        backgroundColor: "#f4f4f4",
+        borderRadius: 10, 
+      },
     buttonText: {
         fontSize: 16,
         color: 'black',
