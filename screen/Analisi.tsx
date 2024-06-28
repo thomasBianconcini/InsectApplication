@@ -43,7 +43,6 @@ export function AnalisiScreen(props: { navigation: any, route: any }) {
     }, []);
 
     console.log( props.route.params.url)
-
     return (
         <LinearGradient
           colors={['#add8e6', '#1e90ff']}  
@@ -58,23 +57,56 @@ export function AnalisiScreen(props: { navigation: any, route: any }) {
             <View style={{ flex: 0.5, justifyContent: 'center', alignItems: 'center' }}>
               <Image
                 source={{ uri: props.route?.params?.url }}
-                style={{ width: windowWidth * 60 / 100, height: 400 }}
+                style={{ width: windowWidth * 40/ 100, height: windowHeight*40/100 }}
               />
             </View>
             <View style={{ flex: 0.5, alignItems: "center" }}>
-              <ScrollView style={styles.scrollView}>
-                <Text style={styles.buttonText}> {result}</Text>
-              </ScrollView>
+              <View style={styles.scrollView}>
+                <View style={{flex:0.5, alignItems:"center",justifyContent:"center"}}>
+                  <Image
+                    source={ require("../Images/Ladybird.jpg")}
+                    style={{ width: windowWidth * 40 / 100, height: windowHeight*40/100 }}
+                  />
+                </View >
+                <View style={{flex:0.5, alignItems:"center",justifyContent:"center"}}>
+                  <LinearGradient
+                    colors={['#e0ffe0', '#66ff66']}   
+                    style={[styles.button,{marginBottom:'25%'}]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                  >
+                    <View style={styles.buttonContent} >
+                      <Text style={styles.buttonText}>Docile o Cattivo</Text>
+                    </View>
+                  </LinearGradient>
+                  <LinearGradient
+                    colors={['#f0f0f0', '#bfbfbf']}
+                    style={styles.button}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                  >
+                    <View style={styles.buttonContent} >
+                      <Text style={styles.buttonText}>{result}</Text>
+                    </View>
+                  </LinearGradient>
+                </View>
+              </View>
             </View>
           </View>
         </LinearGradient>
       );
     }
 const styles = StyleSheet.create({
+  buttonContent: {
+    flex: 1,
+    borderRadius: 25, 
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
     button: {
-        width: '100%',
+        width: '90%',
         height: 50,
-        borderRadius: 2,
+        borderRadius: 25,
         backgroundColor: '#f4f4f4',
         borderWidth: 1,
         borderColor: '#e6e6e6',
@@ -84,7 +116,8 @@ const styles = StyleSheet.create({
     scrollView: {
         marginBottom: '5%',
         width: '90%',
-        flexDirection: "column",
+        height:'98%',
+        flexDirection: "row",
         backgroundColor: "#f4f4f4",
         borderRadius: 10, 
       },

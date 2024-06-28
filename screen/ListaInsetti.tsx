@@ -80,7 +80,7 @@ export function ListaInsettiScreen(props: { navigation: any }) {
     }
     return (
         <LinearGradient
-            colors={['#add8e6', '#1e90ff']}  // Gradient from light blue to DodgerBlue
+            colors={['#add8e6', '#1e90ff']}  
             style={{ flex: 1 }}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
