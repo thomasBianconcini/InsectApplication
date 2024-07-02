@@ -2,39 +2,45 @@ import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from
 import { useEffect, useState } from "react";
 import { ImageLibraryOptions, launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import LinearGradient from "react-native-linear-gradient";
+
 export function HomePageScreen(props: { navigation: any }) {
 
   const loadFromGallery = () => {
     const options = {
       mediaType: 'photo',
-      includeBase64: false,
-      maxHeight: 2000,
-      maxWidth: 2000,
+      includeBase64: true,
+      maxHeight: 224,
+      maxWidth: 224,
     } as ImageLibraryOptions;
 
     launchImageLibrary(options, (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else {
-        let imageUri = response.assets?.[0]?.uri;
-        props.navigation.navigate("Analisi", { url: imageUri })
+        let base64Data = response.assets?.[0]?.base64;
+        let imageUri=response.assets?.[0]?.uri
+        props.navigation.navigate("Analisi", { url: imageUri , base64: base64Data})
       }
     });
   };
+
   const scattaFoto = () => {
     const options = {
       mediaType: 'photo',
-      includeBase64: false,
-      maxHeight: 2000,
-      maxWidth: 2000,
+      includeBase64: true,
+      maxHeight: 224,
+      maxWidth: 224,
     } as ImageLibraryOptions;
 
     launchCamera(options, (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else {
-        let imageUri = response.assets?.[0]?.uri;
-        props.navigation.navigate("Analisi", { url: imageUri })
+        let imageUri=""
+        if( response.assets?.[0]?.uri)
+          imageUri = response.assets?.[0]?.uri
+        let base64Data = response.assets?.[0]?.base64;
+        props.navigation.navigate("Analisi", { url: imageUri , base64: base64Data})
       }
     });
   };

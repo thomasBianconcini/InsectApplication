@@ -1,13 +1,16 @@
 import { Button, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useEffect, useLayoutEffect, useState, version } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, version } from "react";
 import { loadTensorflowModel } from "react-native-fast-tflite";
-import { TypedArray } from "@tensorflow/tfjs";
 import LinearGradient from "react-native-linear-gradient";
+import ImageResizer from "react-native-image-resizer";
+import { convertToRGB } from 'react-native-image-to-rgb';
 
-export function AnalisiScreen(props: { navigation: any, route: any }) {
+export function AnalisiScreen(this: any, props: { navigation: any, route: any }) {
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
+    const [imageUri, setImageUri] = useState<string | null>(null);
     const [result, setResult] = useState("");
+    const [rgbArray, setRgbArray] = useState([]);
     function generateRandomTypedArrays(length: number, arrayLength: number, min: number, max: number): Float32Array[] {
         let arrays: Float32Array[] = [];
         for (let i = 0; i < length; i++) {
@@ -19,20 +22,58 @@ export function AnalisiScreen(props: { navigation: any, route: any }) {
         }
         return arrays;
     }
-    
+    const [pixels, setPixels] = useState<number[][] | null>(null);
+    const handleCanvas= (canvas:any) => {
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = 'purple';
+      ctx.fillRect(0, 0, 100, 100);
+    }
     
     useEffect(() => {
         const loadModel = async () => {
+          var todec=""
+          if(props.route?.params?.base64){
+            todec=props.route?.params?.base64
+          }
+          
+          ImageResizer.createResizedImage(props.route?.params?.url, 224, 224, 'PNG', 100).then((resizedImage) => {
+            setImageUri(resizedImage.uri)
+            todec=resizedImage.uri
+          }).catch((err) => {
+            console.log(err);
+          });
+
+          var img=""
+          if(props.route.params.url)
+            img=props.route.params.url
+          const result = await convertToRGB(img);
+          console.log('Array di pixel:', result.length);
+          let mean: number[] = [153.62967781, 154.31288711, 124.22471186];
+          let std: number[] = [79.92603312, 75.5793136, 88.96403388];
+          let rgbTriples: number[][] = [];
+
+          for (let i = 0; i < result.length; i += 3) {
+              let triple: number[] = [result[i], result[i + 1], result[i + 2]];
+              rgbTriples.push(triple);
+          }
+
+          let standardizedArray = rgbTriples.map(rgb => {
+            let standardizedRGB = [
+                (rgb[0] - mean[0]) / std[0],
+                (rgb[1] - mean[1]) / std[1],
+                (rgb[2] - mean[2]) / std[2]
+            ];
+            return standardizedRGB;
+        });
+          console.log( standardizedArray);
             try {
-                let numberOfArrays = 1;  // numero di TypedArray
-                let lengthOfEachArray = 2296;  // lunghezza di ciascun TypedArray
+                let numberOfArrays = 1; 
+                let lengthOfEachArray = 2296;
                 let min = -2;
                 let max = 2;
                 const model = await loadTensorflowModel(require('../Model/model_volume_lite.tflite'));
-                console.log(model.inputs);
                 let randomTypedArrays: Float32Array[] = generateRandomTypedArrays(numberOfArrays, lengthOfEachArray, min, max);
                 const output = await model.run(randomTypedArrays)
-                console.log(output)
                 setResult(output.toString())
             } catch (error) {
                 console.error('Error loading the model:', error);
@@ -42,8 +83,8 @@ export function AnalisiScreen(props: { navigation: any, route: any }) {
         loadModel();
     }, []);
 
-    console.log( props.route.params.url)
     return (
+      
         <LinearGradient
           colors={['#add8e6', '#1e90ff']}  
           style={{ flex: 1 }}
@@ -130,3 +171,5 @@ const styles = StyleSheet.create({
         flex: 1, flexDirection: 'row', alignContent: 'center', justifyContent: "center", borderWidth: 2,
     }
 });
+
+
