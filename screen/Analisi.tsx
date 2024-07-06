@@ -1,4 +1,4 @@
-import { Button, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Button, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useEffect, useLayoutEffect, useRef, useState, version } from "react";
 import { loadTensorflowModel } from "react-native-fast-tflite";
 import LinearGradient from "react-native-linear-gradient";
@@ -10,7 +10,8 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
     const windowHeight = Dimensions.get('window').height;
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [result, setResult] = useState("");
-    const [rgbArray, setRgbArray] = useState([]);
+    const [good, setGood] = useState(true);
+    const[show,setShow]= useState(false)
     function generateRandomTypedArrays(length: number, arrayLength: number, min: number, max: number): Float32Array[] {
         let arrays: Float32Array[] = [];
         for (let i = 0; i < length; i++) {
@@ -50,31 +51,32 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
           console.log('Array di pixel:', result.length);
           let mean: number[] = [153.62967781, 154.31288711, 124.22471186];
           let std: number[] = [79.92603312, 75.5793136, 88.96403388];
-          let rgbTriples: number[][] = [];
+          let standardizedArray = new Float32Array(224 * 224 * 3);
 
-          for (let i = 0; i < result.length; i += 3) {
-              let triple: number[] = [result[i], result[i + 1], result[i + 2]];
-              rgbTriples.push(triple);
+          for (let y = 0; y < 224; y++) {
+              for (let x = 0; x < 224; x++) {
+                  let index = (y * 224 + x) * 3;
+                  standardizedArray[index] = (result[index] - mean[0]) / std[0];
+                  standardizedArray[index + 1] = (result[index + 1] - mean[1]) / std[1];
+                  standardizedArray[index + 2] = (result[index + 2] - mean[2]) / std[2];
+              }
           }
+          let inputTensor = [standardizedArray];
 
-          let standardizedArray = rgbTriples.map(rgb => {
-            let standardizedRGB = [
-                (rgb[0] - mean[0]) / std[0],
-                (rgb[1] - mean[1]) / std[1],
-                (rgb[2] - mean[2]) / std[2]
-            ];
-            return standardizedRGB;
-        });
-          console.log( standardizedArray);
+          console.log('Input tensor shape:', inputTensor.length);
+
             try {
-                let numberOfArrays = 1; 
-                let lengthOfEachArray = 2296;
-                let min = -2;
-                let max = 2;
-                const model = await loadTensorflowModel(require('../Model/model_volume_lite.tflite'));
-                let randomTypedArrays: Float32Array[] = generateRandomTypedArrays(numberOfArrays, lengthOfEachArray, min, max);
-                const output = await model.run(randomTypedArrays)
-                setResult(output.toString())
+                const model = await loadTensorflowModel(require('../Model/model_binary_classification_tflite.tflite'));
+                console.log("Input model:", model.inputs);
+                console.log(inputTensor)
+                const output = await model.run( inputTensor );
+                console.log(output);
+                setResult(output.toString());
+                if(output[0][0]<0.5)
+                  setGood(false)
+                else
+                  setGood(true)
+                setShow(true)
             } catch (error) {
                 console.error('Error loading the model:', error);
             }
@@ -98,7 +100,7 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
             <View style={{ flex: 0.5, justifyContent: 'center', alignItems: 'center' }}>
               <Image
                 source={{ uri: props.route?.params?.url }}
-                style={{ width: windowWidth * 40/ 100, height: windowHeight*40/100 }}
+                style={{ width: 224, height: 224 }}
               />
             </View>
             <View style={{ flex: 0.5, alignItems: "center" }}>
@@ -110,16 +112,31 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
                   />
                 </View >
                 <View style={{flex:0.5, alignItems:"center",justifyContent:"center"}}>
-                  <LinearGradient
+                  {show?
+                  <>
+                  {
+                    good? <LinearGradient
                     colors={['#e0ffe0', '#66ff66']}   
                     style={[styles.button,{marginBottom:'25%'}]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                   >
                     <View style={styles.buttonContent} >
-                      <Text style={styles.buttonText}>Docile o Cattivo</Text>
+                      <Text style={styles.buttonText}>Docile</Text>
                     </View>
                   </LinearGradient>
+                    : <LinearGradient
+                    colors={['#ffe0e0', '#ff6666']}   
+                    style={[styles.button,{marginBottom:'25%'}]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                  >
+                    <View style={styles.buttonContent} >
+                      <Text style={styles.buttonText}>Cattivo</Text>
+                    </View>
+                  </LinearGradient>
+                  }
+                 
                   <LinearGradient
                     colors={['#f0f0f0', '#bfbfbf']}
                     style={styles.button}
@@ -127,9 +144,19 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
                     end={{ x: 1, y: 0 }}
                   >
                     <View style={styles.buttonContent} >
-                      <Text style={styles.buttonText}>{result}</Text>
+                      <Text style={styles.buttonText}>{(parseFloat(result) * 100).toFixed(2)}%</Text>
                     </View>
                   </LinearGradient>
+                  </>
+                  : 
+                    <ActivityIndicator
+                      style={{
+                        backgroundColor: '#f4f4f4',
+                        justifyContent: 'center',
+                        alignSelf: 'center',
+                      }}
+                      size={'large'}></ActivityIndicator>
+                  }
                 </View>
               </View>
             </View>
