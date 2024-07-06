@@ -147,7 +147,7 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
                     <View style={styles.buttonContent} >
                       {
                         good?<Text style={styles.buttonText}>{(parseFloat(result) * 100).toFixed(2)}%</Text>
-                        :<Text style={styles.buttonText}>{(parseFloat(result) * 100+50).toFixed(2)}%</Text>
+                        : <Text style={styles.buttonText}>{Math.abs(parseFloat(result) * 100 - 100).toFixed(2)}%</Text>
                       }
                     </View>
                   </LinearGradient>
