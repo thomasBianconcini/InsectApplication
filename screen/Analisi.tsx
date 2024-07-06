@@ -49,8 +49,8 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
             img=props.route.params.url
           const result = await convertToRGB(img);
           console.log('Array di pixel:', result.length);
-          let mean: number[] = [153.62967781, 154.31288711, 124.22471186];
-          let std: number[] = [79.92603312, 75.5793136, 88.96403388];
+          let mean: number[] = [146.48107588, 148.63667783, 111.89538171];
+          let std: number[] = [76.88493199, 71.21221079, 83.31565906];
           let standardizedArray = new Float32Array(224 * 224 * 3);
 
           for (let y = 0; y < 224; y++) {
@@ -66,7 +66,7 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
           console.log('Input tensor shape:', inputTensor.length);
 
             try {
-                const model = await loadTensorflowModel(require('../Model/model_binary_classification_tflite.tflite'));
+                const model = await loadTensorflowModel(require('../Model/model_binary_classification_tflite_2.tflite'));
                 console.log("Input model:", model.inputs);
                 console.log(inputTensor)
                 const output = await model.run( inputTensor );
@@ -125,6 +125,7 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
                       <Text style={styles.buttonText}>Docile</Text>
                     </View>
                   </LinearGradient>
+                  
                     : <LinearGradient
                     colors={['#ffe0e0', '#ff6666']}   
                     style={[styles.button,{marginBottom:'25%'}]}
@@ -144,7 +145,10 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
                     end={{ x: 1, y: 0 }}
                   >
                     <View style={styles.buttonContent} >
-                      <Text style={styles.buttonText}>{(parseFloat(result) * 100).toFixed(2)}%</Text>
+                      {
+                        good?<Text style={styles.buttonText}>{(parseFloat(result) * 100).toFixed(2)}%</Text>
+                        :<Text style={styles.buttonText}>{(parseFloat(result) * 100+50).toFixed(2)}%</Text>
+                      }
                     </View>
                   </LinearGradient>
                   </>
