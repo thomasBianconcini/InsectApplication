@@ -1,8 +1,7 @@
-import { ActivityIndicator, Button, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useEffect, useLayoutEffect, useRef, useState, version } from "react";
+import { ActivityIndicator, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { loadTensorflowModel } from "react-native-fast-tflite";
 import LinearGradient from "react-native-linear-gradient";
-import ImageResizer from "react-native-image-resizer";
 import { convertToRGB } from 'react-native-image-to-rgb';
 import RNFS from 'react-native-fs';
 
@@ -33,18 +32,7 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
 
       setImages(images);
   }, []);
-    function generateRandomTypedArrays(length: number, arrayLength: number, min: number, max: number): Float32Array[] {
-        let arrays: Float32Array[] = [];
-        for (let i = 0; i < length; i++) {
-            let typedArray = new Float32Array(arrayLength);
-            for (let j = 0; j < arrayLength; j++) {
-                typedArray[j] = Math.random() * (max - min) + min;
-            }
-            arrays.push(typedArray);
-        }
-        return arrays;
-    }
-
+    
     useEffect(() => {
         const loadModel = async () => {
           var todec=""
@@ -171,7 +159,7 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
                     end={{ x: 1, y: 0 }}
                   >
                     <View style={styles.buttonContent} >
-                      <Text style={styles.buttonText}>Cattivo</Text>
+                      <Text style={styles.buttonText}>Pericoloso</Text>
                     </View>
                   </LinearGradient>
                   }
@@ -209,7 +197,7 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
                 end={{ x: 1, y: 0 }}
               >
                 <TouchableOpacity style={styles.buttonContent} onPress={()=>setBinary(false)}>
-                  <Text style={styles.buttonText}>Classifcation</Text>
+                  <Text style={styles.buttonText}>Classification</Text>
                 </TouchableOpacity>
               </LinearGradient>
               </View>
@@ -329,11 +317,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: 'black',
     },
-    
-    element: {
-        height: 300, backgroundColor: '#f4f4f4', alignSelf: 'center', borderRadius: 5, borderColor: '#e6e6e6',
-        flex: 1, flexDirection: 'row', alignContent: 'center', justifyContent: "center", borderWidth: 2,
-    }
 });
 
 
