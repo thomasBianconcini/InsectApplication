@@ -46,7 +46,7 @@ export function ListaInsettiScreen(props: { navigation: any }) {
                     <View style={{ flex: 0.5, width: windowWidth * 50 / 100, alignItems: 'center', justifyContent: 'center' }}>
                         <Image
                             source={imagesDangerous[i]}
-                            style={{ width: windowWidth * 0.4, height: 200 }}
+                            style={{ width: 180, height: 180 }}
                         />
                     </View>
                     <View style={{ flex: 0.5, alignItems: 'center', justifyContent: 'center' }}>
@@ -68,7 +68,7 @@ export function ListaInsettiScreen(props: { navigation: any }) {
                     <View style={{ flex: 0.5, width: windowWidth * 50 / 100, alignItems: 'center', justifyContent: 'center' }}>
                         <Image
                             source={imagesNotDangerous[i]}
-                            style={{ width: windowWidth * 0.4, height: 200 }}
+                            style={{ width: 180, height: 180 }}
                         />
                     </View>
                     <View style={{ flex: 0.5, alignItems: 'center', justifyContent: 'center' }}>
