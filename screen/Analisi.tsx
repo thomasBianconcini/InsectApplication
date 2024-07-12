@@ -48,7 +48,7 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
           }
           console.log(props.route.params.url)
           const result = await convertToRGB(img);
-          console.log('Array di pixel:', result.length);
+          console.log('Pixel array:', result.length);
           let mean: number[] = [146.48107588, 148.63667783, 111.89538171];
           let std: number[] = [76.88493199, 71.21221079, 83.31565906];
 
@@ -105,8 +105,8 @@ export function AnalisiScreen(this: any, props: { navigation: any, route: any })
                 setIndex(maxIndex)
                 setName(insect_list[maxIndex])
                 setValue(maxVal.toString())
-                console.log('Valore massimo:', maxVal);
-                console.log('Indice del valore massimo:', maxIndex);
+                console.log('Max val:', maxVal);
+                console.log('Max index:', maxIndex);
             } catch (error) {
                 console.error('Error loading the model:', error);
             }
